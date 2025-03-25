@@ -64,8 +64,9 @@ export class AssistantService {
         return await this.modelConfigRepository.findOne({ where: { id } });
     }
 
-    async getStreamResponse(content: string, modelConfig: ModelConfig) {
+    async getStreamResponse(id: string, content: string, modelConfig: ModelConfig) {
         const { provider, modelName, config: { apiKey, baseUrl } } = modelConfig;
+        const conversation = await this.getConversation(id);
         let client: OpenAI;
         if (provider === 'openai') {
             client = new OpenAI({
@@ -81,10 +82,12 @@ export class AssistantService {
             throw new Error(`Unsupported provider: ${provider}`);
         }
 
+        console.log([...conversation.messages, { role: 'user', content }]);
+
         try {
             const response = await client.chat.completions.create({
                 model: modelName,
-                messages: [{ role: 'user', content }],
+                messages: [...conversation.messages, { role: 'user', content }],
                 stream: true,
             });
 

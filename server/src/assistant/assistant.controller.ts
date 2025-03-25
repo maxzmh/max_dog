@@ -41,12 +41,13 @@ export class AssistantController {
             // 保存用户消息
             await this.assistantService.addMessage(id, MessageRole.USER, content);
 
+
             // 获取当前活跃的模型配置
             const modelConfig = await this.assistantService.getActiveModelConfig();
             if (!modelConfig) {
                 throw new HttpException('No active model configuration found', HttpStatus.NOT_FOUND);
             }
-            const aiResponse = await this.assistantService.getStreamResponse(content, modelConfig);
+            const aiResponse = await this.assistantService.getStreamResponse(id, content, modelConfig);
             return await this.assistantService.addMessage(id, MessageRole.ASSISTANT, aiResponse);
         } catch (error) {
             if (error instanceof HttpException) {
