@@ -1,34 +1,47 @@
+import { PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
-import { Tabs } from 'antd';
-import { TabsProps } from 'antd/lib';
-import Field from './components/Field';
-import FieldConfig from './components/FieldConfig';
-import FieldType from './components/FieldType';
+import { Bubble, Conversations, Sender } from '@ant-design/x';
+import { Button, Col, Flex, Row } from 'antd';
+import { useConversations } from './hooks';
 import styles from './index.less';
 
-const items: TabsProps['items'] = [
-  {
-    key: '1',
-    label: '字段类型',
-    children: <FieldType />,
-  },
-  {
-    key: '2',
-    label: '字段',
-    children: <Field />,
-  },
-  {
-    key: '3',
-    label: '字段配置',
-    children: <FieldConfig />,
-  },
-];
-
 const HomePage: React.FC = () => {
+  const {
+    activeConversation,
+    onConversationClick,
+    createConversation,
+    conversationsItems,
+  } = useConversations();
+
   return (
     <div className={styles.container}>
       <PageContainer>
-        <Tabs defaultActiveKey="1" items={items} />
+        <Row gutter={12} style={{ height: 'calc(100vh - 120px)' }}>
+          <Col span={6} className={styles.menu}>
+            <div style={{ height: 72 }}></div>
+            <Button
+              style={{ width: '100%' }}
+              onClick={createConversation}
+              className={styles.addBtn}
+              icon={<PlusOutlined />}
+            >
+              新对话
+            </Button>
+            {/* 🌟 会话管理 */}
+            <Conversations
+              items={conversationsItems}
+              className={styles.conversations}
+              activeKey={activeConversation}
+              onActiveChange={onConversationClick}
+            />
+          </Col>
+          <Col span={18}>
+            <Flex vertical style={{ height: '100%' }}>
+              <Bubble.List style={{ flex: 1 }} />
+              <Sender style={{ marginBottom: 24 }} />
+            </Flex>
+          </Col>
+        </Row>
       </PageContainer>
     </div>
   );

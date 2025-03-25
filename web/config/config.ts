@@ -21,6 +21,11 @@ export default defineConfig({
       component: './Assistant',
       layout: false,
     },
+    {
+      name: '智能助手',
+      path: '/home',
+      component: './Home',
+    },
 
   ],
   proxy: {

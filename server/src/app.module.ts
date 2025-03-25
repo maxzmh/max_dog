@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -10,6 +9,7 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { GlobalFilter } from './common/filters/global.filter';
 import { GlobalInterceptor } from './common/interceptors/global/global.interceptor';
 import { AssistantModule } from './assistant/assistant.module';
+
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { AssistantModule } from './assistant/assistant.module';
           username: configService.get(ConfigEnum.DB_USERNAME),
           password: configService.get(ConfigEnum.DB_PASSWORD),
           database: configService.get(ConfigEnum.DB_DATABASE),
-          entities: [],
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
           namingStrategy: new DefaultNamingStrategy(),
           // 同步本地的schema与数据库 -> 初始化的时候去使用
           synchronize: configService.get(ConfigEnum.DB_SYNC),
@@ -36,9 +36,9 @@ import { AssistantModule } from './assistant/assistant.module';
         } as TypeOrmModuleOptions;
       },
     }),
-    AssistantModule,
+    AssistantModule
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     AppService,
     {

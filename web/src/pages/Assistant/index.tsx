@@ -1,17 +1,4 @@
 import {
-  Attachments,
-  Bubble,
-  Conversations,
-  Prompts,
-  Sender,
-  Welcome,
-  useXAgent,
-  useXChat,
-} from '@ant-design/x';
-import { createStyles } from 'antd-style';
-import React, { useEffect } from 'react';
-
-import {
   CloudUploadOutlined,
   CommentOutlined,
   EllipsisOutlined,
@@ -23,7 +10,20 @@ import {
   ShareAltOutlined,
   SmileOutlined,
 } from '@ant-design/icons';
+import {
+  Attachments,
+  Bubble,
+  Conversations,
+  Prompts,
+  Sender,
+  Welcome,
+  useXAgent,
+} from '@ant-design/x';
 import { Badge, Button, type GetProp, Space } from 'antd';
+import { createStyles } from 'antd-style';
+
+import React from 'react';
+import { useConversationMessages, useConversations } from './hooks';
 
 const renderTitle = (icon: React.ReactElement, title: string) => (
   <Space align="start">
@@ -32,19 +32,12 @@ const renderTitle = (icon: React.ReactElement, title: string) => (
   </Space>
 );
 
-const defaultConversationsItems = [
-  {
-    key: '0',
-    label: 'What is Ant Design X?',
-  },
-];
-
 const useStyle = createStyles(({ token, css }) => {
   return {
     layout: css`
       width: 100%;
       min-width: 1000px;
-      height: 722px;
+      height: 100%;
       border-radius: ${token.borderRadius}px;
       display: flex;
       background: ${token.colorBgContainer};
@@ -181,7 +174,7 @@ const senderPromptsItems: GetProp<typeof Prompts, 'items'> = [
 ];
 
 const roles: GetProp<typeof Bubble.List, 'roles'> = {
-  ai: {
+  assistant: {
     placement: 'start',
     typing: { step: 5, interval: 20 },
     styles: {
@@ -190,7 +183,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
       },
     },
   },
-  local: {
+  user: {
     placement: 'end',
     variant: 'shadow',
   },
@@ -199,19 +192,19 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
 const Independent: React.FC = () => {
   // ==================== Style ====================
   const { styles } = useStyle();
+  const {
+    activeConversation,
+    createConversation,
+    conversationsItems,
+    onConversationClick,
+  } = useConversations();
+
+  const { addMessage, messages } = useConversationMessages(activeConversation);
 
   // ==================== State ====================
   const [headerOpen, setHeaderOpen] = React.useState(false);
 
   const [content, setContent] = React.useState('');
-
-  const [conversationsItems, setConversationsItems] = React.useState(
-    defaultConversationsItems,
-  );
-
-  const [activeKey, setActiveKey] = React.useState(
-    defaultConversationsItems[0].key,
-  );
 
   const [attachedFiles, setAttachedFiles] = React.useState<
     GetProp<typeof Attachments, 'items'>
@@ -224,42 +217,15 @@ const Independent: React.FC = () => {
     model: 'deepseek-chat',
   });
 
-  const { onRequest, messages, setMessages } = useXChat({
-    agent,
-  });
-
-  useEffect(() => {
-    if (activeKey !== undefined) {
-      setMessages([]);
-    }
-  }, [activeKey]);
-
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
-    onRequest(nextContent);
+    addMessage(nextContent);
     setContent('');
   };
 
   const onPromptsItemClick: GetProp<typeof Prompts, 'onItemClick'> = (info) => {
-    onRequest(info.data.description as string);
-  };
-
-  const onAddConversation = () => {
-    setConversationsItems([
-      ...conversationsItems,
-      {
-        key: `${conversationsItems.length}`,
-        label: `New Conversation ${conversationsItems.length}`,
-      },
-    ]);
-    setActiveKey(`${conversationsItems.length}`);
-  };
-
-  const onConversationClick: GetProp<typeof Conversations, 'onActiveChange'> = (
-    key,
-  ) => {
-    setActiveKey(key);
+    addMessage(info.data.description as string);
   };
 
   const handleFileChange: GetProp<typeof Attachments, 'onChange'> = (info) =>
@@ -271,7 +237,7 @@ const Independent: React.FC = () => {
       <Welcome
         variant="borderless"
         icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
-        title="Hello, I'm Ant Design X"
+        title="Hello, I'm Max Dog"
         description="Base on Ant Design, AGI product interface solution, create a better intelligent vision~"
         extra={
           <Space>
@@ -296,14 +262,14 @@ const Independent: React.FC = () => {
     </Space>
   );
 
-  const items: GetProp<typeof Bubble.List, 'items'> = messages.map(
-    ({ id, message, status }) => ({
+  const items: GetProp<typeof Bubble.List, 'items'> = messages.map((item) => {
+    const { id, message, status } = item;
+    return {
+      ...item,
       key: id,
-      loading: status === 'loading',
-      role: status === 'local' ? 'local' : 'ai',
-      content: message,
-    }),
-  );
+      // loading: status === 'loading',
+    };
+  });
 
   const attachmentsNode = (
     <Badge dot={attachedFiles.length > 0 && !headerOpen}>
@@ -350,7 +316,7 @@ const Independent: React.FC = () => {
         draggable={false}
         alt="logo"
       />
-      <span>Ant Design X</span>
+      <span>Max Dog</span>
     </div>
   );
 
@@ -362,7 +328,7 @@ const Independent: React.FC = () => {
         {logoNode}
         {/* 🌟 添加会话 */}
         <Button
-          onClick={onAddConversation}
+          onClick={createConversation}
           type="link"
           className={styles.addBtn}
           icon={<PlusOutlined />}
@@ -373,7 +339,7 @@ const Independent: React.FC = () => {
         <Conversations
           items={conversationsItems}
           className={styles.conversations}
-          activeKey={activeKey}
+          activeKey={activeConversation}
           onActiveChange={onConversationClick}
         />
       </div>

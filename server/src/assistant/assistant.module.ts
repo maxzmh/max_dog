@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from '@nestjs/axios';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AssistantService } from './assistant.service';
 import { AssistantController } from './assistant.controller';
-import { DeepSeekService } from './deepseek.service';
-import { ConfigModule } from '@nestjs/config';
+import { Conversation } from './entities/conversation.entity';
+import { Message } from './entities/message.entity';
+import { ModelConfig } from './entities/model-config.entity';
 
 @Module({
-  imports: [
-    ConfigModule.forFeature(() => ({})),
-    HttpModule
-  ],
-  controllers: [AssistantController],
-  providers: [DeepSeekService],
-  exports: [DeepSeekService]
+    imports: [TypeOrmModule.forFeature([Conversation, Message, ModelConfig])],
+    controllers: [AssistantController],
+    providers: [AssistantService],
+    exports: [AssistantService],
 })
 export class AssistantModule { }
