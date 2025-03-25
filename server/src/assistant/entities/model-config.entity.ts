@@ -14,6 +14,12 @@ export class ModelConfig {
     @Column({ length: 100 })
     modelName: string;
 
+    @Column({ length: 500, nullable: true })
+    apiKey: string;
+
+    @Column({ length: 500, nullable: true })
+    baseUrl: string;
+
     @Column({ type: 'json', nullable: true })
     config: Record<string, any>;
 

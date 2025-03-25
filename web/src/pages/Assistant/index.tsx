@@ -9,6 +9,7 @@ import {
   ReadOutlined,
   ShareAltOutlined,
   SmileOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import {
   Attachments,
@@ -177,6 +178,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
   assistant: {
     placement: 'start',
     typing: { step: 5, interval: 20 },
+    avatar: { icon: <UserOutlined />, style: { background: '#fde3cf' } },
     styles: {
       content: {
         borderRadius: 16,
@@ -184,6 +186,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
     },
   },
   user: {
+    avatar: { icon: <UserOutlined />, style: { background: '#87d068' } },
     placement: 'end',
     variant: 'shadow',
   },
@@ -266,6 +269,7 @@ const Independent: React.FC = () => {
     const { id, message, status } = item;
     return {
       ...item,
+      typing: false,
       key: id,
       // loading: status === 'loading',
     };

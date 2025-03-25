@@ -15,7 +15,9 @@ export class AssistantService {
         private readonly messageRepository: Repository<Message>,
         @InjectRepository(ModelConfig)
         private readonly modelConfigRepository: Repository<ModelConfig>,
-    ) { }
+    ) {
+
+    }
 
     async createConversation(title: string) {
         const conversation = this.conversationRepository.create({ title });
@@ -62,7 +64,40 @@ export class AssistantService {
         return await this.modelConfigRepository.findOne({ where: { id } });
     }
 
-    getStreamResponse(content: string, modelConfig: ModelConfig) {
-        return 'dafdsa'
+    async getStreamResponse(content: string, modelConfig: ModelConfig) {
+        const { provider, modelName, config: { apiKey, baseUrl } } = modelConfig;
+        let client: OpenAI;
+        if (provider === 'openai') {
+            client = new OpenAI({
+                apiKey,
+                baseURL: baseUrl,
+            });
+        } else if (provider === 'deepseek') {
+            client = new OpenAI({
+                apiKey,
+                baseURL: baseUrl || 'https://api.deepseek.com/v1',
+            });
+        } else {
+            throw new Error(`Unsupported provider: ${provider}`);
+        }
+
+        try {
+            const response = await client.chat.completions.create({
+                model: modelName,
+                messages: [{ role: 'user', content }],
+                stream: true,
+            });
+
+            let fullResponse = '';
+            for await (const chunk of response) {
+                const content = chunk.choices[0]?.delta?.content || '';
+                fullResponse += content;
+            }
+
+            return fullResponse;
+        } catch (error) {
+            console.error('Error in getStreamResponse:', error);
+            throw error;
+        }
     }
 }

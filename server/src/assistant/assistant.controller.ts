@@ -46,11 +46,7 @@ export class AssistantController {
             if (!modelConfig) {
                 throw new HttpException('No active model configuration found', HttpStatus.NOT_FOUND);
             }
-
-
-            const aiResponse = this.assistantService.getStreamResponse(content, modelConfig);
-
-            // 保存 AI 回复
+            const aiResponse = await this.assistantService.getStreamResponse(content, modelConfig);
             return await this.assistantService.addMessage(id, MessageRole.ASSISTANT, aiResponse);
         } catch (error) {
             if (error instanceof HttpException) {
