@@ -21,8 +21,6 @@ export class AssistantController {
   @Post('/stream')
   @Sse()
   stream(@Body('message') message: string) {
-    return this.deepSeekService.streamChatCompletion(message).pipe(
-      map((content) => ({ data: { content } } as MessageEvent))
-    );
+    return this.deepSeekService.streamChatCompletion(message)
   }
 }

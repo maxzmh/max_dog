@@ -22,16 +22,14 @@ export class DeepSeekService {
         return completion.choices[0].message.content;
     }
 
-    streamChatCompletion(message: string): Observable<string> {
-        return from(
-            this.openai.chat.completions.create({
-                model: 'deepseek-chat',
-                messages: [{ role: 'user', content: message }],
-                stream: true
-            })
-        ).pipe(
-            mergeMap(stream => stream),
-            map(chunk => chunk.choices[0]?.delta?.content || '')
+    async streamChatCompletion(message: string) {
+        const response = await this.openai.chat.completions.create({
+            messages: [{ role: "system", content: "You are a helpful assistant." }], // 消息数组，包含一个用户角色和内容
+            model: 'deepseek-chat', // 使用的模型名称
+            stream: true, // 开启流式响应
+        });
+        return from(response).pipe(
+            map((part) => part),
         );
     }
 }
