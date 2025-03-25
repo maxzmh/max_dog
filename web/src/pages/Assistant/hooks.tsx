@@ -4,11 +4,12 @@ import {
   assistantControllerGetConversation,
   assistantControllerListConversations,
 } from '@/services/configure/assistant';
-import { Conversations } from '@ant-design/x';
+import { Conversations, XStream } from '@ant-design/x';
 import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
+import { assistantControllerStreamResponse } from '../../services/configure/assistant';
 
 export const useConversationMessages = (conversationId: string | undefined) => {
   const { data: conversation } = useRequest(
@@ -25,7 +26,7 @@ export const useConversationMessages = (conversationId: string | undefined) => {
   );
 
   const { runAsync: addMessage } = useRequest(async (content: string) => {
-    const res = await assistantControllerAddMessage(
+    const res = await assistantControllerStreamResponse(
       {
         id: conversationId as string,
       },
@@ -33,7 +34,7 @@ export const useConversationMessages = (conversationId: string | undefined) => {
         data: { content },
       },
     );
-    return res.data;
+
   });
 
   const messages = useMemo(() => {

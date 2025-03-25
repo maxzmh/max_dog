@@ -64,30 +64,19 @@ export class AssistantService {
         return await this.modelConfigRepository.findOne({ where: { id } });
     }
 
-    async getStreamResponse(id: string, content: string, modelConfig: ModelConfig) {
-        const { provider, modelName, config: { apiKey, baseUrl } } = modelConfig;
+    async getStreamResponse(id:string,content: string, modelConfig: ModelConfig) {
+        const {  modelName, apiKey, baseUrl  } = modelConfig;
         const conversation = await this.getConversation(id);
         let client: OpenAI;
-        if (provider === 'openai') {
-            client = new OpenAI({
-                apiKey,
-                baseURL: baseUrl,
-            });
-        } else if (provider === 'deepseek') {
-            client = new OpenAI({
-                apiKey,
-                baseURL: baseUrl || 'https://api.deepseek.com/v1',
-            });
-        } else {
-            throw new Error(`Unsupported provider: ${provider}`);
-        }
-
-        console.log([...conversation.messages, { role: 'user', content }]);
+        client = new OpenAI({
+            apiKey,
+            baseURL: baseUrl,
+        });
 
         try {
             const response = await client.chat.completions.create({
                 model: modelName,
-                messages: [...conversation.messages, { role: 'user', content }],
+                messages: [...conversation.messages,{ role: 'user', content }],
                 stream: true,
             });
 
@@ -100,6 +89,34 @@ export class AssistantService {
             return fullResponse;
         } catch (error) {
             console.error('Error in getStreamResponse:', error);
+            throw error;
+        }
+    }
+
+    async *getStreamResponseGenerator(id: string, content: string, modelConfig: ModelConfig) {
+        const { modelName, apiKey, baseUrl } = modelConfig;
+        const conversation = await this.getConversation(id);
+        let client: OpenAI;
+        client = new OpenAI({
+            apiKey,
+            baseURL: baseUrl,
+        });
+
+        try {
+            const response = await client.chat.completions.create({
+                model: modelName,
+                messages: [...conversation.messages.map(msg => ({ role: msg.role, content: msg.content })), { role: 'user', content }],
+                stream: true,
+            });
+
+            for await (const chunk of response) {
+                const content = chunk.choices[0]?.delta?.content || '';
+                if (content) {
+                    yield content;
+                }
+            }
+        } catch (error) {
+            console.error('Error in getStreamResponseGenerator:', error);
             throw error;
         }
     }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Sse, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Res, HttpStatus, HttpException } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { AssistantService } from './assistant.service';
 import { MessageRole } from './entities/message.entity';
@@ -41,7 +41,6 @@ export class AssistantController {
             // 保存用户消息
             await this.assistantService.addMessage(id, MessageRole.USER, content);
 
-
             // 获取当前活跃的模型配置
             const modelConfig = await this.assistantService.getActiveModelConfig();
             if (!modelConfig) {
@@ -56,20 +55,52 @@ export class AssistantController {
             throw new HttpException('Failed to process message', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @Sse('conversations/:id/stream')
+    
+    @Post('/conversations/:id/stream')
     @ApiOperation({ summary: '流式输出' })
-    streamResponse(@Param('id') id: string): Observable<MessageEvent> {
-        // TODO: 实现 SSE 流式输出
-        return new Observable((subscriber) => {
-            // 示例：每秒发送一条消息
-            const interval = setInterval(() => {
-                subscriber.next({ data: { message: 'Streaming response...' } } as MessageEvent);
-            }, 1000);
-
-            return () => {
-                clearInterval(interval);
-            };
-        });
+    async streamResponse(
+        @Param('id') id: string,
+        @Body('content') content: string,
+        @Res() response: any,
+    ) {
+        // 设置 SSE 响应头
+        response.setHeader('Content-Type', 'text/event-stream');
+        response.setHeader('Cache-Control', 'no-cache');
+        response.setHeader('Connection', 'keep-alive');
+        
+        try {
+            // 保存用户消息
+            await this.assistantService.addMessage(id, MessageRole.USER, content);
+                    
+            // 获取当前活跃的模型配置
+            const modelConfig = await this.assistantService.getActiveModelConfig();
+            if (!modelConfig) {
+                response.status(HttpStatus.NOT_FOUND).send({ message: 'No active model configuration found' });
+                return;
+            }
+                    
+            // 获取流式输出
+            let fullResponse = '';
+            const stream = await this.assistantService.getStreamResponseGenerator(id, content, modelConfig);
+            
+            for await (const chunk of stream) {
+                fullResponse += chunk;
+                // 手动写入 SSE 格式数据
+                response.write(`data: ${JSON.stringify({ message: chunk })}\n\n`);
+            }
+            
+            // 保存AI完整消息
+            await this.assistantService.addMessage(id, MessageRole.ASSISTANT, fullResponse);
+            
+            // 结束响应
+            response.end();
+        } catch (error) {
+            console.error('Failed to process message:', error);
+            if (error instanceof HttpException) {
+                response.status(error.getStatus()).send({ message: error.message });
+            } else {
+                response.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Failed to process message' });
+            }
+        }
     }
 }
