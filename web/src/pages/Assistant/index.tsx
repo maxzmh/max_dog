@@ -14,15 +14,16 @@ import {
 import {
   Attachments,
   Bubble,
+  BubbleProps,
   Conversations,
   Prompts,
   Sender,
   Welcome,
   useXAgent,
 } from '@ant-design/x';
-import { Badge, Button, type GetProp, Space } from 'antd';
+import { Badge, Button, type GetProp, Space, Typography } from 'antd';
 import { createStyles } from 'antd-style';
-
+import markdownit from 'markdown-it';
 import React from 'react';
 import { useConversationMessages, useConversations } from './hooks';
 
@@ -110,6 +111,15 @@ const useStyle = createStyles(({ token, css }) => {
     `,
   };
 });
+
+const md = markdownit({ html: true, breaks: true });
+
+const renderMarkdown: BubbleProps['messageRender'] = (content) => (
+  <Typography>
+    {/* biome-ignore lint/security/noDangerouslySetInnerHtml: used in demo */}
+    <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
+  </Typography>
+);
 
 const placeholderPromptsItems: GetProp<typeof Prompts, 'items'> = [
   {
@@ -271,6 +281,7 @@ const Independent: React.FC = () => {
       ...item,
       typing: false,
       key: id,
+      messageRender: renderMarkdown,
       // loading: status === 'loading',
     };
   });

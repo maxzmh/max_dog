@@ -7,6 +7,7 @@ import {
 import { Conversations } from '@ant-design/x';
 import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
+import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 
 export const useConversationMessages = (conversationId: string | undefined) => {
@@ -36,7 +37,9 @@ export const useConversationMessages = (conversationId: string | undefined) => {
   });
 
   const messages = useMemo(() => {
-    return conversation?.messages || [];
+    return (conversation?.messages || []).sort((a, b) => {
+      return dayjs(a.createdAt).diff(dayjs(b.createdAt));
+    });
   }, [conversation]);
 
   return { messages, addMessage };
