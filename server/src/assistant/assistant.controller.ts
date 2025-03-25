@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Param, Res, HttpStatus, HttpException } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Controller, Get, Post, Body, Param, Res, HttpStatus, HttpException, Sse, Query } from '@nestjs/common';
+import { from, map, Observable, tap } from 'rxjs';
 import { AssistantService } from './assistant.service';
 import { MessageRole } from './entities/message.entity';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -56,52 +56,40 @@ export class AssistantController {
         }
     }
     
-    @Post('/conversations/:id/stream')
+    @Sse('/conversations/:id/stream')
     @ApiOperation({ summary: '流式输出' })
     async streamResponse(
         @Param('id') id: string,
-        @Body('content') content: string,
-        @Res() response: any,
+        @Query('content') content: string,
     ) {
-        // 设置 SSE 响应头
-        response.setHeader('Content-Type', 'text/event-stream');
-        response.setHeader('Cache-Control', 'no-cache');
-        response.setHeader('Connection', 'keep-alive');
-        
         try {
             // 保存用户消息
             await this.assistantService.addMessage(id, MessageRole.USER, content);
                     
             // 获取当前活跃的模型配置
             const modelConfig = await this.assistantService.getActiveModelConfig();
-            if (!modelConfig) {
-                response.status(HttpStatus.NOT_FOUND).send({ message: 'No active model configuration found' });
-                return;
-            }
-                    
+
             // 获取流式输出
             let fullResponse = '';
             const stream = await this.assistantService.getStreamResponseGenerator(id, content, modelConfig);
-                
-            for await (const chunk of stream) {
-                
-                fullResponse += chunk;
-                // 手动写入 SSE 格式数据
-                response.write(`data: ${JSON.stringify({ message: chunk })}\n`);
-            }
-            
-            // 保存AI完整消息
-            await this.assistantService.addMessage(id, MessageRole.ASSISTANT, fullResponse);
-            
-            // 结束响应
-            response.end();
+            const res: string[] = [];
+            return from(stream).pipe(
+              map((part) => {
+                const content = part.choices[0].delta?.content || '';
+                res.push(content);
+                fullResponse += content;
+                return res.join('');
+              }),
+              tap({
+                complete: async () => {
+                  if (fullResponse) {
+                    await this.assistantService.addMessage(id, MessageRole.ASSISTANT, fullResponse);
+                  }
+                }
+              })
+            );
         } catch (error) {
             console.error('Failed to process message:', error);
-            if (error instanceof HttpException) {
-                response.status(error.getStatus()).send({ message: error.message });
-            } else {
-                response.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Failed to process message' });
-            }
         }
     }
 }

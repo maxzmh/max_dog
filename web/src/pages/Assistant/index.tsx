@@ -19,6 +19,7 @@ import {
   Prompts,
   Sender,
   Welcome,
+  XStream,
   useXAgent,
   useXChat,
 } from '@ant-design/x';
@@ -230,17 +231,17 @@ const Independent: React.FC = () => {
 
   // ==================== Runtime ====================
   const [agent] = useXAgent({
-    request:async({message})=>{
-      
-      const res = await assistantControllerStreamResponse(
+    request:async({message},{ onSuccess, onUpdate })=>{
+      const response =  await assistantControllerStreamResponse(
         {
           id: conversationRef.current as string,
-        },
+          content: message
+        } as any,
         {
-          data: { content:message },
+          method: 'GET',
         },
       );
-      console.log('=====',res);
+
       
     }
   });

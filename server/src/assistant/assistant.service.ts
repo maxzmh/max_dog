@@ -93,7 +93,7 @@ export class AssistantService {
         }
     }
 
-    async *getStreamResponseGenerator(id: string, content: string, modelConfig: ModelConfig) {
+    async getStreamResponseGenerator(id: string, content: string, modelConfig: ModelConfig) {
         const { modelName, apiKey, baseUrl } = modelConfig;
         const conversation = await this.getConversation(id);
         let client: OpenAI;
@@ -101,23 +101,11 @@ export class AssistantService {
             apiKey,
             baseURL: baseUrl,
         });
-
-        try {
-            const response = await client.chat.completions.create({
-                model: modelName,
-                messages: [...conversation.messages.map(msg => ({ role: msg.role, content: msg.content })), { role: 'user', content }],
-                stream: true,
-            });
-
-            for await (const chunk of response) {
-                const content = chunk.choices[0]?.delta?.content || '';
-                if (content) {
-                    yield content;
-                }
-            }
-        } catch (error) {
-            console.error('Error in getStreamResponseGenerator:', error);
-            throw error;
-        }
+        return  await client.chat.completions.create({
+            model: modelName,
+            messages: [...conversation.messages.map(msg => ({ role: msg.role, content: msg.content })), { role: 'user', content }],
+            stream: true,
+        });
+    
     }
 }
