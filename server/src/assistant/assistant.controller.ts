@@ -82,11 +82,12 @@ export class AssistantController {
             // 获取流式输出
             let fullResponse = '';
             const stream = await this.assistantService.getStreamResponseGenerator(id, content, modelConfig);
-            
+                
             for await (const chunk of stream) {
+                
                 fullResponse += chunk;
                 // 手动写入 SSE 格式数据
-                response.write(`data: ${JSON.stringify({ message: chunk })}\n\n`);
+                response.write(`data: ${JSON.stringify({ message: chunk })}\n`);
             }
             
             // 保存AI完整消息

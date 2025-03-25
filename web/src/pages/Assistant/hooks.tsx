@@ -8,10 +8,10 @@ import { Conversations, XStream } from '@ant-design/x';
 import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { assistantControllerStreamResponse } from '../../services/configure/assistant';
 
-export const useConversationMessages = (conversationId: string | undefined) => {
+export const useConversationMessages = (conversationId: string | undefined,setMessages) => {
   const { data: conversation } = useRequest(
     async () => {
       if (!conversationId) return [];
@@ -42,8 +42,11 @@ export const useConversationMessages = (conversationId: string | undefined) => {
       return dayjs(a.createdAt).diff(dayjs(b.createdAt));
     });
   }, [conversation]);
+  useEffect(() => {
+    setMessages(messages);
+  }, [messages,setMessages]); // Add messages as a dependency to trigger the effect when messages chang
 
-  return { messages, addMessage };
+  return {  addMessage };
 };
 
 export const useConversations = () => {

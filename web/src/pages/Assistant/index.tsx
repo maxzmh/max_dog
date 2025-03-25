@@ -20,12 +20,15 @@ import {
   Sender,
   Welcome,
   useXAgent,
+  useXChat,
 } from '@ant-design/x';
 import { Badge, Button, type GetProp, Space, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import markdownit from 'markdown-it';
 import React from 'react';
 import { useConversationMessages, useConversations } from './hooks';
+import { assistantControllerStreamResponse } from '@/services/configure/assistant';
+import { useLatest } from 'ahooks';
 
 const renderTitle = (icon: React.ReactElement, title: string) => (
   <Space align="start">
@@ -212,7 +215,9 @@ const Independent: React.FC = () => {
     onConversationClick,
   } = useConversations();
 
-  const { addMessage, messages } = useConversationMessages(activeConversation);
+  const conversationRef = useLatest(activeConversation)
+
+  
 
   // ==================== State ====================
   const [headerOpen, setHeaderOpen] = React.useState(false);
@@ -225,20 +230,34 @@ const Independent: React.FC = () => {
 
   // ==================== Runtime ====================
   const [agent] = useXAgent({
-    baseURL: '/api/assistant/stream',
-    dangerouslyApiKey: 'sk-6ff89cb74a0e4e5cb5bdd5e031b7600d',
-    model: 'deepseek-chat',
+    request:async({message})=>{
+      
+      const res = await assistantControllerStreamResponse(
+        {
+          id: conversationRef.current as string,
+        },
+        {
+          data: { content:message },
+        },
+      );
+      console.log('=====',res);
+      
+    }
   });
+
+  const {setMessages,messages,onRequest} = useXChat({agent})
+
+  const {  } = useConversationMessages(activeConversation,setMessages);
 
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
     if (!nextContent) return;
-    addMessage(nextContent);
+    onRequest(nextContent);
     setContent('');
   };
 
   const onPromptsItemClick: GetProp<typeof Prompts, 'onItemClick'> = (info) => {
-    addMessage(info.data.description as string);
+    onRequest(info.data.description as string);
   };
 
   const handleFileChange: GetProp<typeof Attachments, 'onChange'> = (info) =>
