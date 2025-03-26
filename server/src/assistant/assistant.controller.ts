@@ -72,13 +72,13 @@ export class AssistantController {
             // 获取流式输出
             let fullResponse = '';
             const stream = await this.assistantService.getStreamResponseGenerator(id, content, modelConfig);
-            const res: string[] = [];
+            // const res: string[] = [];
             return from(stream).pipe(
                 map((part, i) => {
                     const content = part.choices[0].delta?.content || '';
-                    res.push(content);
+                    // res.push(content);
                     fullResponse += content;
-                    return res.join('');
+                    return { content };
                 }),
                 tap({
                     complete: async () => {

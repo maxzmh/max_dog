@@ -26,7 +26,7 @@ import { useLatest } from 'ahooks';
 import { Badge, Button, type GetProp, Space, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import markdownit from 'markdown-it';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useConversationMessages, useConversations } from './hooks';
 
 const renderTitle = (icon: React.ReactElement, title: string) => (
@@ -215,6 +215,7 @@ const Independent: React.FC = () => {
   } = useConversations();
 
   const conversationRef = useLatest(activeConversation);
+  const abortRef = useRef(() => {});
 
   // ==================== State ====================
   const [headerOpen, setHeaderOpen] = React.useState(false);
@@ -238,6 +239,9 @@ const Independent: React.FC = () => {
           method: 'GET',
         },
       );
+      abortRef.current = () => {
+        reader?.cancel();
+      };
 
       const reader = response.body?.getReader();
       if (!reader) return;
@@ -250,13 +254,15 @@ const Independent: React.FC = () => {
         if (!value) continue;
 
         const chunkValue = decoder.decode(value);
+
         const lines = chunkValue.split('\n');
+
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const content = line.slice(6);
             if (content.trim()) {
-              onUpdate(content);
-              full += content;
+              full += JSON.parse(content).content;
+              onUpdate(full);
             }
           }
         }
@@ -422,6 +428,7 @@ const Independent: React.FC = () => {
           prefix={attachmentsNode}
           loading={agent.isRequesting()}
           className={styles.sender}
+          onCancel={() => abortRef.current()}
         />
       </div>
     </div>
