@@ -1,17 +1,19 @@
 import {
-  assistantControllerAddMessage,
   assistantControllerCreateConversation,
   assistantControllerGetConversation,
   assistantControllerListConversations,
 } from '@/services/configure/assistant';
-import { Conversations, XStream } from '@ant-design/x';
+import { Conversations } from '@ant-design/x';
 import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { assistantControllerStreamResponse } from '../../services/configure/assistant';
 
-export const useConversationMessages = (conversationId: string | undefined,setMessages) => {
+export const useConversationMessages = (
+  conversationId: string | undefined,
+  setMessages: unknown,
+) => {
   const { data: conversation } = useRequest(
     async () => {
       if (!conversationId) return [];
@@ -25,17 +27,19 @@ export const useConversationMessages = (conversationId: string | undefined,setMe
     },
   );
 
-  const { runAsync: addMessage } = useRequest(async (content: string) => {
-    const res = await assistantControllerStreamResponse(
-      {
-        id: conversationId as string,
-      },
-      {
-        data: { content },
-      },
-    );
-
-  });
+  const { runAsync: addMessage } = useRequest(
+    async (content: string) => {
+      const res = await assistantControllerStreamResponse(
+        {
+          id: conversationId as string,
+        },
+        {
+          data: { content },
+        },
+      );
+    },
+    { manual: true },
+  );
 
   const messages = useMemo(() => {
     return (conversation?.messages || []).sort((a, b) => {
@@ -44,9 +48,9 @@ export const useConversationMessages = (conversationId: string | undefined,setMe
   }, [conversation]);
   useEffect(() => {
     setMessages(messages);
-  }, [messages,setMessages]); // Add messages as a dependency to trigger the effect when messages chang
+  }, [messages, setMessages]); // Add messages as a dependency to trigger the effect when messages chang
 
-  return {  addMessage };
+  return { addMessage };
 };
 
 export const useConversations = () => {

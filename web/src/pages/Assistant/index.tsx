@@ -1,3 +1,4 @@
+import { assistantControllerStreamResponse } from '@/services/configure/assistant';
 import {
   CloudUploadOutlined,
   CommentOutlined,
@@ -19,17 +20,15 @@ import {
   Prompts,
   Sender,
   Welcome,
-  XStream,
   useXAgent,
   useXChat,
 } from '@ant-design/x';
+import { useLatest } from 'ahooks';
 import { Badge, Button, type GetProp, Space, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import markdownit from 'markdown-it';
 import React from 'react';
 import { useConversationMessages, useConversations } from './hooks';
-import { assistantControllerStreamResponse } from '@/services/configure/assistant';
-import { useLatest } from 'ahooks';
 
 const renderTitle = (icon: React.ReactElement, title: string) => (
   <Space align="start">
@@ -216,9 +215,7 @@ const Independent: React.FC = () => {
     onConversationClick,
   } = useConversations();
 
-  const conversationRef = useLatest(activeConversation)
-
-  
+  const conversationRef = useLatest(activeConversation);
 
   // ==================== State ====================
   const [headerOpen, setHeaderOpen] = React.useState(false);
@@ -231,24 +228,26 @@ const Independent: React.FC = () => {
 
   // ==================== Runtime ====================
   const [agent] = useXAgent({
-    request:async({message},{ onSuccess, onUpdate })=>{
-      const response =  await assistantControllerStreamResponse(
+    request: async ({ message }, { onSuccess, onUpdate }) => {
+      if (!conversationRef.current) {
+        return;
+      }
+
+      const response = await assistantControllerStreamResponse(
         {
           id: conversationRef.current as string,
-          content: message
+          content: message,
         } as any,
         {
           method: 'GET',
         },
       );
-
-      
-    }
+    },
   });
 
-  const {setMessages,messages,onRequest} = useXChat({agent})
+  const { setMessages, messages, onRequest } = useXChat({ agent });
 
-  const {  } = useConversationMessages(activeConversation,setMessages);
+  const {} = useConversationMessages(activeConversation, setMessages);
 
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
