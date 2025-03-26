@@ -252,11 +252,8 @@ const Independent: React.FC = () => {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         if (!value) continue;
-
         const chunkValue = decoder.decode(value);
-
         const lines = chunkValue.split('\n');
-
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const content = line.slice(6);
@@ -274,7 +271,7 @@ const Independent: React.FC = () => {
 
   const { setMessages, messages, onRequest } = useXChat({ agent });
 
-  const {} = useConversationMessages(activeConversation, setMessages);
+  useConversationMessages(activeConversation, setMessages);
 
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
@@ -325,7 +322,6 @@ const Independent: React.FC = () => {
     const { id, message, status, content } = item;
     return {
       ...item,
-      role: status === 'success' ? 'assistant' : 'user',
       content: message || content,
       typing: false,
       key: id,

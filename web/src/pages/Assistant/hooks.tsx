@@ -8,11 +8,17 @@ import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
-import { assistantControllerStreamResponse } from '../../services/configure/assistant';
+
+interface Message {
+  id: string;
+  content: string;
+  createdAt: string;
+  role: 'user' | 'assistant';
+}
 
 export const useConversationMessages = (
   conversationId: string | undefined,
-  setMessages: unknown,
+  setMessages: (messages: Message[]) => void,
 ) => {
   const { data: conversation } = useRequest(
     async () => {
@@ -27,30 +33,21 @@ export const useConversationMessages = (
     },
   );
 
-  const { runAsync: addMessage } = useRequest(
-    async (content: string) => {
-      const res = await assistantControllerStreamResponse(
-        {
-          id: conversationId as string,
-        },
-        {
-          data: { content },
-        },
-      );
-    },
-    { manual: true },
-  );
-
   const messages = useMemo(() => {
-    return (conversation?.messages || []).sort((a, b) => {
-      return dayjs(a.createdAt).diff(dayjs(b.createdAt));
-    });
+    if (!conversation?.messages?.length) return [];
+    return conversation.messages
+      .map(
+        (msg): Message => ({
+          ...msg,
+          message: msg.content,
+        }),
+      )
+      .sort((a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix());
   }, [conversation]);
+
   useEffect(() => {
     setMessages(messages);
-  }, [messages, setMessages]); // Add messages as a dependency to trigger the effect when messages chang
-
-  return { addMessage };
+  }, [messages, setMessages]);
 };
 
 export const useConversations = () => {
