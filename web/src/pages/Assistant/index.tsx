@@ -1,4 +1,3 @@
-import { assistantControllerStreamResponse } from '@/services/configure/assistant';
 import {
   CloudUploadOutlined,
   CommentOutlined,
@@ -233,15 +232,37 @@ const Independent: React.FC = () => {
         return;
       }
 
-      const response = await assistantControllerStreamResponse(
-        {
-          id: conversationRef.current as string,
-          content: message,
-        } as any,
+      const response = await fetch(
+        `/api/assistant/conversations/${conversationRef.current}/stream?content=${message}`,
         {
           method: 'GET',
         },
       );
+
+      const reader = response.body?.getReader();
+      if (!reader) return;
+      let full = '';
+      const decoder = new TextDecoder();
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (!value) continue;
+
+        const chunkValue = decoder.decode(value);
+        const lines = chunkValue.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const content = line.slice(6);
+            if (content.trim()) {
+              onUpdate(content);
+              full += content;
+            }
+          }
+        }
+      }
+
+      onSuccess(full);
     },
   });
 
@@ -295,9 +316,11 @@ const Independent: React.FC = () => {
   );
 
   const items: GetProp<typeof Bubble.List, 'items'> = messages.map((item) => {
-    const { id, message, status } = item;
+    const { id, message, status, content } = item;
     return {
       ...item,
+      role: status === 'success' ? 'assistant' : 'user',
+      content: message || content,
       typing: false,
       key: id,
       messageRender: renderMarkdown,

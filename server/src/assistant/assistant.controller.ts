@@ -55,7 +55,7 @@ export class AssistantController {
             throw new HttpException('Failed to process message', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Sse('/conversations/:id/stream')
     @ApiOperation({ summary: '流式输出' })
     async streamResponse(
@@ -65,7 +65,7 @@ export class AssistantController {
         try {
             // 保存用户消息
             await this.assistantService.addMessage(id, MessageRole.USER, content);
-                    
+
             // 获取当前活跃的模型配置
             const modelConfig = await this.assistantService.getActiveModelConfig();
 
@@ -74,19 +74,19 @@ export class AssistantController {
             const stream = await this.assistantService.getStreamResponseGenerator(id, content, modelConfig);
             const res: string[] = [];
             return from(stream).pipe(
-              map((part) => {
-                const content = part.choices[0].delta?.content || '';
-                res.push(content);
-                fullResponse += content;
-                return res.join('');
-              }),
-              tap({
-                complete: async () => {
-                  if (fullResponse) {
-                    await this.assistantService.addMessage(id, MessageRole.ASSISTANT, fullResponse);
-                  }
-                }
-              })
+                map((part, i) => {
+                    const content = part.choices[0].delta?.content || '';
+                    res.push(content);
+                    fullResponse += content;
+                    return res.join('');
+                }),
+                tap({
+                    complete: async () => {
+                        if (fullResponse) {
+                            await this.assistantService.addMessage(id, MessageRole.ASSISTANT, fullResponse);
+                        }
+                    }
+                })
             );
         } catch (error) {
             console.error('Failed to process message:', error);
