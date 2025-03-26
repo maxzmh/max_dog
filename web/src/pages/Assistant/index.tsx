@@ -66,22 +66,31 @@ const useStyle = createStyles(({ token, css }) => {
     chat: css`
       height: 100%;
       width: 100%;
-      max-width: 700px;
       margin: 0 auto;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      padding: ${token.paddingLG}px;
+      align-items: center;
+      padding: ${token.paddingLG}px 0;
       gap: 16px;
     `,
     messages: css`
       flex: 1;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
     `,
     placeholder: css`
       padding-top: 32px;
     `,
     sender: css`
+      width: 100%;
+      max-width: 700px;
       box-shadow: ${token.boxShadow};
+    `,
+    prompts: css`
+      width: 100%;
+      max-width: 700px;
     `,
     logo: css`
       display: flex;
@@ -392,7 +401,7 @@ const Independent: React.FC = () => {
           className={styles.addBtn}
           icon={<PlusOutlined />}
         >
-          New Conversation
+          新对话
         </Button>
         {/* 🌟 会话管理 */}
         <Conversations
@@ -404,17 +413,23 @@ const Independent: React.FC = () => {
       </div>
       <div className={styles.chat}>
         {/* 🌟 消息列表 */}
-        <Bubble.List
-          items={
-            items.length > 0
-              ? items
-              : [{ content: placeholderNode, variant: 'borderless' }]
-          }
-          roles={roles}
-          className={styles.messages}
-        />
+        <div style={{ flex: 1, overflowY: 'scroll', width: '100%' }}>
+          <Bubble.List
+            items={
+              items.length > 0
+                ? items
+                : [{ content: placeholderNode, variant: 'borderless' }]
+            }
+            roles={roles}
+            className={styles.messages}
+          />
+        </div>
         {/* 🌟 提示词 */}
-        <Prompts items={senderPromptsItems} onItemClick={onPromptsItemClick} />
+        <Prompts
+          className={styles.prompts}
+          items={senderPromptsItems}
+          onItemClick={onPromptsItemClick}
+        />
         {/* 🌟 输入框 */}
         <Sender
           value={content}
