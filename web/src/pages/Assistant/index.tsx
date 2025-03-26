@@ -23,7 +23,15 @@ import {
   useXChat,
 } from '@ant-design/x';
 import { useLatest } from 'ahooks';
-import { Avatar, Badge, Button, type GetProp, Space, Typography } from 'antd';
+import {
+  Avatar,
+  Badge,
+  Button,
+  type GetProp,
+  Input,
+  Space,
+  Typography,
+} from 'antd';
 import markdownit from 'markdown-it';
 import React, { useRef } from 'react';
 import { useConversationMessages, useConversations } from './hooks';
@@ -328,7 +336,14 @@ const Independent: React.FC = () => {
       </div>
       <div style={{ width: '100%' }}>
         <div className={styles.conversationName}>
-          <div className={styles.title}>{conversation.title}</div>
+          <div>
+            <Input
+              className={styles.title}
+              size="large"
+              value={conversation?.title}
+              variant="filled"
+            />
+          </div>
           <div className={styles.mark}></div>
         </div>
 
