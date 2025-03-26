@@ -24,10 +24,10 @@ import {
 } from '@ant-design/x';
 import { useLatest } from 'ahooks';
 import { Badge, Button, type GetProp, Space, Typography } from 'antd';
-import { createStyles } from 'antd-style';
 import markdownit from 'markdown-it';
 import React, { useRef } from 'react';
 import { useConversationMessages, useConversations } from './hooks';
+import styles from './index.less';
 
 const renderTitle = (icon: React.ReactElement, title: string) => (
   <Space align="start">
@@ -35,93 +35,6 @@ const renderTitle = (icon: React.ReactElement, title: string) => (
     <span>{title}</span>
   </Space>
 );
-
-const useStyle = createStyles(({ token, css }) => {
-  return {
-    layout: css`
-      width: 100%;
-      min-width: 1000px;
-      height: 100%;
-      border-radius: ${token.borderRadius}px;
-      display: flex;
-      background: ${token.colorBgContainer};
-      font-family: AlibabaPuHuiTi, ${token.fontFamily}, sans-serif;
-
-      .ant-prompts {
-        color: ${token.colorText};
-      }
-    `,
-    menu: css`
-      background: ${token.colorBgLayout}80;
-      width: 280px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    `,
-    conversations: css`
-      padding: 0 12px;
-      flex: 1;
-      overflow-y: auto;
-    `,
-    chat: css`
-      height: 100%;
-      width: 100%;
-      margin: 0 auto;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: ${token.paddingLG}px 0;
-      gap: 16px;
-    `,
-    messages: css`
-      flex: 1;
-      width: 100%;
-      max-width: 700px;
-      margin: 0 auto;
-    `,
-    placeholder: css`
-      padding-top: 32px;
-    `,
-    sender: css`
-      width: 100%;
-      max-width: 700px;
-      box-shadow: ${token.boxShadow};
-    `,
-    prompts: css`
-      width: 100%;
-      max-width: 700px;
-    `,
-    logo: css`
-      display: flex;
-      height: 72px;
-      align-items: center;
-      justify-content: start;
-      padding: 0 24px;
-      box-sizing: border-box;
-
-      img {
-        width: 24px;
-        height: 24px;
-        display: inline-block;
-      }
-
-      span {
-        display: inline-block;
-        margin: 0 8px;
-        font-weight: bold;
-        color: ${token.colorText};
-        font-size: 16px;
-      }
-    `,
-    addBtn: css`
-      background: #1677ff0f;
-      border: 1px solid #1677ff34;
-      width: calc(100% - 24px);
-      margin: 0 12px 24px 12px;
-    `,
-  };
-});
 
 const md = markdownit({ html: true, breaks: true });
 
@@ -137,21 +50,21 @@ const placeholderPromptsItems: GetProp<typeof Prompts, 'items'> = [
     key: '1',
     label: renderTitle(
       <FireOutlined style={{ color: '#FF4D4F' }} />,
-      'Hot Topics',
+      '热门话题',
     ),
-    description: 'What are you interested in?',
+    description: '你对什么感兴趣？',
     children: [
       {
         key: '1-1',
-        description: `What's new in X?`,
+        description: 'X 有什么新功能？',
       },
       {
         key: '1-2',
-        description: `What's AGI?`,
+        description: '什么是 AGI？',
       },
       {
         key: '1-3',
-        description: `Where is the doc?`,
+        description: '在哪里可以找到文档？',
       },
     ],
   },
@@ -159,24 +72,24 @@ const placeholderPromptsItems: GetProp<typeof Prompts, 'items'> = [
     key: '2',
     label: renderTitle(
       <ReadOutlined style={{ color: '#1890FF' }} />,
-      'Design Guide',
+      '设计指南',
     ),
-    description: 'How to design a good product?',
+    description: '如何设计一个好的产品？',
     children: [
       {
         key: '2-1',
         icon: <HeartOutlined />,
-        description: `Know the well`,
+        description: '了解产品',
       },
       {
         key: '2-2',
         icon: <SmileOutlined />,
-        description: `Set the AI role`,
+        description: '设置 AI 角色',
       },
       {
         key: '2-3',
         icon: <CommentOutlined />,
-        description: `Express the feeling`,
+        description: '表达感受',
       },
     ],
   },
@@ -185,12 +98,12 @@ const placeholderPromptsItems: GetProp<typeof Prompts, 'items'> = [
 const senderPromptsItems: GetProp<typeof Prompts, 'items'> = [
   {
     key: '1',
-    description: 'Hot Topics',
+    description: '热门话题',
     icon: <FireOutlined style={{ color: '#FF4D4F' }} />,
   },
   {
     key: '2',
-    description: 'Design Guide',
+    description: '设计指南',
     icon: <ReadOutlined style={{ color: '#1890FF' }} />,
   },
 ];
@@ -215,7 +128,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
 
 const Independent: React.FC = () => {
   // ==================== Style ====================
-  const { styles } = useStyle();
+  // const { styles } = useStyle();
   const {
     activeConversation,
     createConversation,
@@ -302,8 +215,8 @@ const Independent: React.FC = () => {
       <Welcome
         variant="borderless"
         icon="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*s5sNRo5LjfQAAAAAAAAAAAAADgCCAQ/fmt.webp"
-        title="Hello, I'm Max Dog"
-        description="Base on Ant Design, AGI product interface solution, create a better intelligent vision~"
+        title="你好，我是 Max Dog"
+        description="基于 Ant Design 的 AGI 产品界面解决方案，创造更好的智能愿景~"
         extra={
           <Space>
             <Button icon={<ShareAltOutlined />} />
@@ -312,7 +225,7 @@ const Independent: React.FC = () => {
         }
       />
       <Prompts
-        title="Do you want?"
+        title="你想要什么？"
         items={placeholderPromptsItems}
         styles={{
           list: {
@@ -366,11 +279,11 @@ const Independent: React.FC = () => {
         onChange={handleFileChange}
         placeholder={(type) =>
           type === 'drop'
-            ? { title: 'Drop file here' }
+            ? { title: '将文件拖放到此处' }
             : {
                 icon: <CloudUploadOutlined />,
-                title: 'Upload files',
-                description: 'Click or drag files to this area to upload',
+                title: '上传文件',
+                description: '点击或将文件拖拽到此区域上传',
               }
         }
       />
@@ -411,36 +324,50 @@ const Independent: React.FC = () => {
           onActiveChange={onConversationClick}
         />
       </div>
-      <div className={styles.chat}>
-        {/* 🌟 消息列表 */}
-        <div style={{ flex: 1, overflowY: 'scroll', width: '100%' }}>
-          <Bubble.List
-            items={
-              items.length > 0
-                ? items
-                : [{ content: placeholderNode, variant: 'borderless' }]
-            }
-            roles={roles}
-            className={styles.messages}
+      <div style={{ width: '100%' }}>
+        <div className={styles.conversationName}>
+          <div>fdasfdsa</div>
+          <div className={styles.mark}></div>
+        </div>
+
+        <div className={styles.chat}>
+          {/* 🌟 消息列表 */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'scroll',
+              width: '100%',
+              borderRadius: 4,
+            }}
+          >
+            <Bubble.List
+              items={
+                items.length > 0
+                  ? items
+                  : [{ content: placeholderNode, variant: 'borderless' }]
+              }
+              roles={roles}
+              className={styles.messages}
+            />
+          </div>
+          {/* 🌟 提示词 */}
+          <Prompts
+            className={styles.prompts}
+            items={senderPromptsItems}
+            onItemClick={onPromptsItemClick}
+          />
+          {/* 🌟 输入框 */}
+          <Sender
+            value={content}
+            header={senderHeader}
+            onSubmit={onSubmit}
+            onChange={setContent}
+            prefix={attachmentsNode}
+            loading={agent.isRequesting()}
+            className={styles.sender}
+            onCancel={() => abortRef.current()}
           />
         </div>
-        {/* 🌟 提示词 */}
-        <Prompts
-          className={styles.prompts}
-          items={senderPromptsItems}
-          onItemClick={onPromptsItemClick}
-        />
-        {/* 🌟 输入框 */}
-        <Sender
-          value={content}
-          header={senderHeader}
-          onSubmit={onSubmit}
-          onChange={setContent}
-          prefix={attachmentsNode}
-          loading={agent.isRequesting()}
-          className={styles.sender}
-          onCancel={() => abortRef.current()}
-        />
       </div>
     </div>
   );
