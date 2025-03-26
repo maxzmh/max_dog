@@ -319,14 +319,14 @@ const Independent: React.FC = () => {
   );
 
   const items: GetProp<typeof Bubble.List, 'items'> = messages.map((item) => {
-    const { id, message, status, content } = item;
+    const { id, message, status, content, role } = item as any;
     return {
       ...item,
       content: message || content,
       typing: false,
       key: id,
       messageRender: renderMarkdown,
-      // loading: status === 'loading',
+      role: role ? role : status === 'local' ? 'user' : 'assistant',
     };
   });
 
