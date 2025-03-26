@@ -23,7 +23,7 @@ import {
   useXChat,
 } from '@ant-design/x';
 import { useLatest } from 'ahooks';
-import { Badge, Button, type GetProp, Space, Typography } from 'antd';
+import { Avatar, Badge, Button, type GetProp, Space, Typography } from 'antd';
 import markdownit from 'markdown-it';
 import React, { useRef } from 'react';
 import { useConversationMessages, useConversations } from './hooks';
@@ -40,7 +40,6 @@ const md = markdownit({ html: true, breaks: true });
 
 const renderMarkdown: BubbleProps['messageRender'] = (content) => (
   <Typography>
-    {/* biome-ignore lint/security/noDangerouslySetInnerHtml: used in demo */}
     <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
   </Typography>
 );
@@ -112,7 +111,12 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
   assistant: {
     placement: 'start',
     typing: { step: 5, interval: 20 },
-    avatar: { icon: <UserOutlined />, style: { background: '#fde3cf' } },
+    avatar: {
+      icon: (
+        <Avatar src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original" />
+      ),
+      style: { background: '#fff' },
+    },
     styles: {
       content: {
         borderRadius: 16,
@@ -127,8 +131,6 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
 };
 
 const Independent: React.FC = () => {
-  // ==================== Style ====================
-  // const { styles } = useStyle();
   const {
     activeConversation,
     createConversation,
@@ -193,7 +195,7 @@ const Independent: React.FC = () => {
 
   const { setMessages, messages, onRequest } = useXChat({ agent });
 
-  useConversationMessages(activeConversation, setMessages);
+  const conversation = useConversationMessages(activeConversation, setMessages);
 
   // ==================== Event ====================
   const onSubmit = (nextContent: string) => {
@@ -326,7 +328,7 @@ const Independent: React.FC = () => {
       </div>
       <div style={{ width: '100%' }}>
         <div className={styles.conversationName}>
-          <div>fdasfdsa</div>
+          <div className={styles.title}>{conversation.title}</div>
           <div className={styles.mark}></div>
         </div>
 

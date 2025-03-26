@@ -48,6 +48,8 @@ export const useConversationMessages = (
   useEffect(() => {
     setMessages(messages);
   }, [messages, setMessages]);
+
+  return conversation;
 };
 
 export const useConversations = () => {
