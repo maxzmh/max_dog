@@ -1,3 +1,4 @@
+import useXChat from '@/components/UseXChatPro';
 import {
   CloudUploadOutlined,
   CommentOutlined,
@@ -20,7 +21,6 @@ import {
   Sender,
   Welcome,
   useXAgent,
-  useXChat,
 } from '@ant-design/x';
 import { useLatest } from 'ahooks';
 import {
@@ -164,7 +164,7 @@ const Independent: React.FC = () => {
       if (!conversationRef.current) {
         return;
       }
-
+      onUpdate('');
       const response = await fetch(
         `/api/assistant/conversations/${conversationRef.current}/stream`,
         {
@@ -207,7 +207,11 @@ const Independent: React.FC = () => {
     },
   });
 
-  const { setMessages, messages, onRequest } = useXChat({ agent });
+  const { setMessages, messages, onRequest } = useXChat({
+    agent,
+  });
+
+  console.log('messages', messages);
 
   const conversation = useConversationMessages(activeConversation, setMessages);
 
@@ -257,14 +261,11 @@ const Independent: React.FC = () => {
   );
 
   const items: GetProp<typeof Bubble.List, 'items'> = messages.map((item) => {
-    const { id, message, status, content, role } = item as any;
     return {
       ...item,
-      content: message || content,
+      key: item.id,
       typing: false,
-      key: id,
       messageRender: renderMarkdown,
-      role: role ? role : status === 'local' ? 'user' : 'assistant',
     };
   });
 
