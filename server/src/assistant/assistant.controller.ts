@@ -3,6 +3,7 @@ import { from, map, Observable, tap } from 'rxjs';
 import { AssistantService } from './assistant.service';
 import { MessageRole } from './entities/message.entity';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { StreamPost } from './decorators/stream-post.decorator';
 
 @ApiTags('Assistant')
 @Controller('assistant')
@@ -56,11 +57,12 @@ export class AssistantController {
         }
     }
 
-    @Sse('/conversations/:id/stream')
+    @Post('/conversations/:id/stream')
+    @Sse()
     @ApiOperation({ summary: '流式输出' })
     async streamResponse(
         @Param('id') id: string,
-        @Query('content') content: string,
+        @Body('content') content: string,
     ) {
         try {
             // 保存用户消息

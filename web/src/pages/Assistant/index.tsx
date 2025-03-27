@@ -166,9 +166,15 @@ const Independent: React.FC = () => {
       }
 
       const response = await fetch(
-        `/api/assistant/conversations/${conversationRef.current}/stream?content=${message}`,
+        `/api/assistant/conversations/${conversationRef.current}/stream`,
         {
-          method: 'GET',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: message,
+          }),
         },
       );
       abortRef.current = () => {
