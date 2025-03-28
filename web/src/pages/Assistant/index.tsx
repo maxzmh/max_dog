@@ -1,4 +1,4 @@
-import { TrimInnerInput } from '@/components/Trim/TrimInnerInput';
+import Maxinput from '@/components/Maxinput';
 import useXChat from '@/components/UseXChatPro';
 import {
   CloudUploadOutlined,
@@ -339,9 +339,8 @@ const Independent: React.FC = () => {
       <div style={{ width: '100%' }}>
         <div className={styles.conversationName}>
           <div>
-            <TrimInnerInput
+            <Maxinput
               maxLength={20}
-              width="fit-content"
               className={styles.title}
               size="large"
               value={conversation?.title}
