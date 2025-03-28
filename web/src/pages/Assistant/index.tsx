@@ -18,13 +18,22 @@ import {
   Bubble,
   BubbleProps,
   Conversations,
+  ConversationsProps,
   Prompts,
   Sender,
-  Welcome,
   useXAgent,
+  Welcome,
 } from '@ant-design/x';
 import { useLatest } from 'ahooks';
-import { Avatar, Badge, Button, type GetProp, Space, Typography } from 'antd';
+import {
+  Avatar,
+  Badge,
+  Button,
+  type GetProp,
+  Modal,
+  Space,
+  Typography,
+} from 'antd';
 import markdownit from 'markdown-it';
 import React, { useRef } from 'react';
 import { useConversationMessages, useConversations } from './hooks';
@@ -133,6 +142,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
 
 const Independent: React.FC = () => {
   const {
+    deleteConversation,
     renameConversation,
     activeConversation,
     createConversation,
@@ -274,6 +284,27 @@ const Independent: React.FC = () => {
     </Badge>
   );
 
+  const menuConfig: ConversationsProps['menu'] = (conversation) => ({
+    items: [
+      {
+        label: '删除',
+        key: conversation.id,
+        onClick: () => {
+          Modal.confirm({
+            title: '删除会话',
+            content: '确认删除该会话吗？',
+            okText: '确认',
+            cancelText: '取消',
+            onOk: async () => await deleteConversation(conversation.id),
+          });
+        },
+      },
+    ],
+    onClick: (menuInfo) => {
+      // message.info(`Click ${conversation.key} - ${menuInfo.key}`);
+    },
+  });
+
   const senderHeader = (
     <Sender.Header
       title="Attachments"
@@ -330,6 +361,7 @@ const Independent: React.FC = () => {
         </Button>
         {/* 🌟 会话管理 */}
         <Conversations
+          menu={menuConfig}
           items={conversationsItems}
           className={styles.conversations}
           activeKey={activeConversation}

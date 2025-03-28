@@ -1,5 +1,6 @@
 import {
   assistantControllerCreateConversation,
+  assistantControllerDeleteConversation,
   assistantControllerGetConversation,
   assistantControllerListConversations,
   assistantControllerUpdateConversationTitle,
@@ -85,7 +86,7 @@ export const useConversations = () => {
         id,
         title,
       });
-
+      refreshConversations();
       return res.data;
     },
     {
@@ -93,7 +94,18 @@ export const useConversations = () => {
     },
   );
 
+  const { runAsync: deleteConversation } = useRequest(
+    async (id: string) => {
+      await assistantControllerDeleteConversation({
+        id,
+      });
+      refreshConversations();
+    },
+    { manual: true },
+  );
+
   return {
+    deleteConversation,
     renameConversation,
     activeConversation,
     createConversation,
