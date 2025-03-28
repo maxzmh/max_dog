@@ -37,6 +37,14 @@ export class AssistantService {
 
     }
 
+    async updateConversationTitle(id: string, title: string) {
+        return await this.conversationRepository.update(id, { title });
+    }
+
+    async deleteConversation(id: string) {
+        return await this.conversationRepository.delete(id);
+    }
+
     async listConversations() {
         return await this.conversationRepository.find({
             where: { isActive: true },

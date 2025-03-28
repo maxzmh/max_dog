@@ -1,4 +1,4 @@
-import { defineConfig } from '@umijs/max';
+import { defineConfig } from "@umijs/max";
 
 export default defineConfig({
   antd: {},
@@ -7,40 +7,42 @@ export default defineConfig({
   initialState: {},
   request: {},
   layout: {
-    title: 'Max Dog',
+    title: "Max Dog",
   },
-  plugins: ['@umijs/max-plugin-openapi'],
+  plugins: ["@umijs/max-plugin-openapi"],
   routes: [
     {
-      path: '/',
-      redirect: '/assistant',
+      path: "/",
+      redirect: "/assistant",
     },
     {
-      name: '智能助手',
-      path: '/assistant',
-      component: './Assistant',
+      name: "智能助手",
+      path: "/assistant",
+      component: "./Assistant",
       layout: false,
     },
     {
-      name: '智能助手',
-      path: '/home',
-      component: './Home',
+      name: "智能助手",
+      path: "/home",
+      component: "./Home",
     },
-
   ],
+
   proxy: {
-    '/api': {
-      target: 'http://localhost:3456',
+    "/api": {
+      target: "http://localhost:3456",
       changeOrigin: true,
     },
   },
   openAPI: [
     {
       requestLibPath: "import { request } from '@umijs/max'",
-      schemaPath: 'http://localhost:3456/docs-json',
+      schemaPath: "http://localhost:3456/docs-json",
       mock: false,
-      projectName: 'configure',
+      projectName: "configure",
     },
   ],
-  npmClient: 'pnpm',
+
+  npmClient: "pnpm",
+  dva: {},
 });

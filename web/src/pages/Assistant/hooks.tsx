@@ -2,6 +2,7 @@ import {
   assistantControllerCreateConversation,
   assistantControllerGetConversation,
   assistantControllerListConversations,
+  assistantControllerUpdateConversationTitle,
 } from '@/services/configure/assistant';
 import { Conversations } from '@ant-design/x';
 import { useRequest } from 'ahooks';
@@ -77,7 +78,23 @@ export const useConversations = () => {
     { manual: true },
   );
 
+  const { run: renameConversation } = useRequest(
+    async (id: string, title: string) => {
+      if (!activeConversation) return;
+      const res = await assistantControllerUpdateConversationTitle({
+        id,
+        title,
+      });
+
+      return res.data;
+    },
+    {
+      manual: true,
+    },
+  );
+
   return {
+    renameConversation,
     activeConversation,
     createConversation,
     conversationsItems,

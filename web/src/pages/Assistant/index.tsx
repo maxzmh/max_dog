@@ -1,3 +1,4 @@
+import { TrimInnerInput } from '@/components/Trim/TrimInnerInput';
 import useXChat from '@/components/UseXChatPro';
 import {
   CloudUploadOutlined,
@@ -23,15 +24,7 @@ import {
   useXAgent,
 } from '@ant-design/x';
 import { useLatest } from 'ahooks';
-import {
-  Avatar,
-  Badge,
-  Button,
-  type GetProp,
-  Input,
-  Space,
-  Typography,
-} from 'antd';
+import { Avatar, Badge, Button, type GetProp, Space, Typography } from 'antd';
 import markdownit from 'markdown-it';
 import React, { useRef } from 'react';
 import { useConversationMessages, useConversations } from './hooks';
@@ -140,6 +133,7 @@ const roles: GetProp<typeof Bubble.List, 'roles'> = {
 
 const Independent: React.FC = () => {
   const {
+    renameConversation,
     activeConversation,
     createConversation,
     conversationsItems,
@@ -345,11 +339,16 @@ const Independent: React.FC = () => {
       <div style={{ width: '100%' }}>
         <div className={styles.conversationName}>
           <div>
-            <Input
+            <TrimInnerInput
+              maxLength={20}
+              width="fit-content"
               className={styles.title}
               size="large"
               value={conversation?.title}
               variant="filled"
+              onConfirm={async (title: string) =>
+                await renameConversation(conversation.id, title)
+              }
             />
           </div>
           <div className={styles.mark}></div>

@@ -15,6 +15,19 @@ export class AssistantController {
     async createConversation(@Body('title') title: string) {
         return await this.assistantService.createConversation(title);
     }
+    // 修改会话名称
+    @Post('conversations/:id')
+    @ApiOperation({ summary: '修改会话名称' })
+    async updateConversationTitle(@Param('id') id: string, @Query('title') title: string) {
+        return await this.assistantService.updateConversationTitle(id, title);
+    }
+
+    @Post('conversations/:id/delete')
+    @ApiOperation({ summary: '删除会话' })
+    async deleteConversation(@Param('id') id: string) {
+        return await this.assistantService.deleteConversation(id);
+    }
+
 
     @Get('conversations')
     @ApiOperation({ summary: '获取会话列表' })
