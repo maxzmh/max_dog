@@ -43,6 +43,7 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
+
     onChange?.(newValue);
   };
 

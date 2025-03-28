@@ -26,7 +26,7 @@ export class AssistantService {
 
     async getConversation(id: string) {
         return await this.conversationRepository.findOne({
-            where: { id },
+            where: { id, isActive: true },
             relations: ['messages'],
             order: {
                 messages: {
@@ -34,7 +34,6 @@ export class AssistantService {
                 },
             },
         });
-
     }
 
     async updateConversationTitle(id: string, title: string) {
@@ -42,7 +41,7 @@ export class AssistantService {
     }
 
     async deleteConversation(id: string) {
-        return await this.conversationRepository.delete(id);
+        return await this.conversationRepository.update(id, { isActive: false });
     }
 
     async listConversations() {
