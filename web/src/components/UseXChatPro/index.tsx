@@ -93,11 +93,16 @@ export default function useXChat<
     })),
   );
 
-  const createMessage = (message: AgentMessage, status: MessageStatus) => {
-    const msg: MessageInfo<AgentMessage> = {
+  const createMessage = (
+    message: AgentMessage,
+    status: MessageStatus,
+    role: string,
+  ) => {
+    const msg = {
       id: `msg_${idRef.current}`,
       message,
       status,
+      role,
     };
 
     idRef.current += 1;
@@ -149,7 +154,7 @@ export default function useXChat<
 
     // Add placeholder message
     setMessages((ori) => {
-      let nextMessages = [...ori, createMessage(message, 'local')];
+      let nextMessages = [...ori, createMessage(message, 'local', 'user')];
 
       if (requestPlaceholder) {
         let placeholderMsg: AgentMessage;
@@ -165,7 +170,11 @@ export default function useXChat<
           placeholderMsg = requestPlaceholder;
         }
 
-        const loadingMsg = createMessage(placeholderMsg, 'loading');
+        const loadingMsg = createMessage(
+          placeholderMsg,
+          'loading',
+          'assistant',
+        );
         loadingMsgId = loadingMsg.id;
 
         nextMessages = [...nextMessages, loadingMsg];
@@ -181,7 +190,7 @@ export default function useXChat<
 
       if (!msg) {
         // Create if not exist
-        msg = createMessage(message, status);
+        msg = createMessage(message, status, 'assistant');
         setMessages((ori) => {
           const oriWithoutPending = ori.filter(
             (info) => info.id !== loadingMsgId,

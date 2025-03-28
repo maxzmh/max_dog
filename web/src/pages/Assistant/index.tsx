@@ -209,6 +209,7 @@ const Independent: React.FC = () => {
 
   const { setMessages, messages, onRequest } = useXChat({
     agent,
+    requestPlaceholder: '正在请求...',
   });
 
   const conversation = useConversationMessages(activeConversation, setMessages);
@@ -263,6 +264,7 @@ const Independent: React.FC = () => {
       ...item,
       key: item.id,
       typing: false,
+      content: item.message || item.content,
       loading: item.status === 'loading' && !item.message,
       messageRender: renderMarkdown,
     };
