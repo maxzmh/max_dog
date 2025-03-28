@@ -211,8 +211,6 @@ const Independent: React.FC = () => {
     agent,
   });
 
-  console.log('messages', messages);
-
   const conversation = useConversationMessages(activeConversation, setMessages);
 
   // ==================== Event ====================
@@ -265,6 +263,7 @@ const Independent: React.FC = () => {
       ...item,
       key: item.id,
       typing: false,
+      loading: item.status === 'loading' && !item.message,
       messageRender: renderMarkdown,
     };
   });

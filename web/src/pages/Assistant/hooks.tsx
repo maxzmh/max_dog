@@ -6,8 +6,7 @@ import {
 import { Conversations } from '@ant-design/x';
 import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
-import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Message {
   id: string;
@@ -18,7 +17,7 @@ interface Message {
 
 export const useConversationMessages = (
   conversationId: string | undefined,
-  setMessages: (messages: Message[]) => void,
+  setMessages: any,
 ) => {
   const { data: conversation } = useRequest(
     async () => {
@@ -33,21 +32,9 @@ export const useConversationMessages = (
     },
   );
 
-  const messages = useMemo(() => {
-    if (!conversation?.messages?.length) return [];
-    return conversation.messages
-      .map(
-        (msg): Message => ({
-          ...msg,
-          message: msg.content,
-        }),
-      )
-      .sort((a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix());
-  }, [conversation]);
-
   useEffect(() => {
-    setMessages(messages);
-  }, [messages, setMessages]);
+    setMessages(conversation?.messages || []);
+  }, [conversation, setMessages]);
 
   return conversation;
 };

@@ -3,7 +3,7 @@ import { from, map, Observable, tap } from 'rxjs';
 import { AssistantService } from './assistant.service';
 import { MessageRole } from './entities/message.entity';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { StreamPost } from './decorators/stream-post.decorator';
+
 
 @ApiTags('Assistant')
 @Controller('assistant')

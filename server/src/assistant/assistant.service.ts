@@ -28,7 +28,13 @@ export class AssistantService {
         return await this.conversationRepository.findOne({
             where: { id },
             relations: ['messages'],
+            order: {
+                messages: {
+                    createdAt: 'ASC',
+                },
+            },
         });
+
     }
 
     async listConversations() {
@@ -64,8 +70,8 @@ export class AssistantService {
         return await this.modelConfigRepository.findOne({ where: { id } });
     }
 
-    async getStreamResponse(id:string,content: string, modelConfig: ModelConfig) {
-        const {  modelName, apiKey, baseUrl  } = modelConfig;
+    async getStreamResponse(id: string, content: string, modelConfig: ModelConfig) {
+        const { modelName, apiKey, baseUrl } = modelConfig;
         const conversation = await this.getConversation(id);
         let client: OpenAI;
         client = new OpenAI({
@@ -76,7 +82,7 @@ export class AssistantService {
         try {
             const response = await client.chat.completions.create({
                 model: modelName,
-                messages: [...conversation.messages,{ role: 'user', content }],
+                messages: [...conversation.messages, { role: 'user', content }],
                 stream: true,
             });
 
@@ -101,11 +107,11 @@ export class AssistantService {
             apiKey,
             baseURL: baseUrl,
         });
-        return  await client.chat.completions.create({
+        return await client.chat.completions.create({
             model: modelName,
             messages: [...conversation.messages.map(msg => ({ role: msg.role, content: msg.content })), { role: 'user', content }],
             stream: true,
         });
-    
+
     }
 }
