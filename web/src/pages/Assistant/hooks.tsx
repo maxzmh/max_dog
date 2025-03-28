@@ -6,6 +6,7 @@ import {
 import { Conversations } from '@ant-design/x';
 import { useRequest } from 'ahooks';
 import { GetProp } from 'antd';
+import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
 interface Message {
@@ -33,7 +34,12 @@ export const useConversationMessages = (
   );
 
   useEffect(() => {
-    setMessages(conversation?.messages || []);
+    setMessages(
+      _.map(conversation?.messages || [], (item: any) => ({
+        ...item,
+        message: item.content,
+      })),
+    );
   }, [conversation, setMessages]);
 
   return conversation;

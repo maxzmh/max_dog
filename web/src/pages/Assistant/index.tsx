@@ -264,7 +264,7 @@ const Independent: React.FC = () => {
       ...item,
       key: item.id,
       typing: false,
-      content: item.message || item.content,
+      content: item.message,
       loading: item.status === 'loading' && !item.message,
       messageRender: renderMarkdown,
     };
